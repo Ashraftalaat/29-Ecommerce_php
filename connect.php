@@ -1,4 +1,7 @@
 <?php
+// $dsn = "mysql:host=sql304.infinityfree.com;dbname=if0_36246397_ecommerce";
+// $user = "if0_36246397";
+// $pass = "A1cCElByIoW6M";
 $dsn = "mysql:host=localhost;dbname=ecommerce";
 $user = "root";
 $pass = "";
@@ -12,7 +15,7 @@ try {
    header("Access-Control-Allow-Origin: *");
    header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, Access-Control-Allow-Origin");
    header("Access-Control-Allow-Methods: POST, OPTIONS , GET");
-   include "./functions.php";
+   include "functions.php";
    if (!isset($notAuth)) {
       // checkAuthenticate();
    }
