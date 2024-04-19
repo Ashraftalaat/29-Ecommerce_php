@@ -11,20 +11,37 @@ function filterRequest($requestname)
   return  htmlspecialchars(strip_tags($_POST[$requestname]));
 }
 
-function getAllData($table, $where = null, $values = null)
+function getAllData($table, $where = null, $values = null,$json =true)
 {
     global $con;
     $data = array();
-    $stmt = $con->prepare("SELECT  * FROM $table WHERE   $where ");
+    if ($where == null) {
+        $stmt = $con->prepare("SELECT  * FROM $table "); 
+    }else {
+        $stmt = $con->prepare("SELECT  * FROM $table WHERE   $where ");
+    }
+    
     $stmt->execute($values);
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $count  = $stmt->rowCount();
+    //لاننا مش عايزين نطبع json 
+   if ($json == true) {
     if ($count > 0){
         echo json_encode(array("status" => "success", "data" => $data));
     } else {
         echo json_encode(array("status" => "failure"));
     }
     return $count;
+   }else {
+    // لو json مش true يعني في تغيير في القيمة
+    if ($count > 0) {
+        //اطبعلي الداتا return
+        return $data;
+    }else {
+        // اما "status" :"failure"
+        return json_encode(array("status" => "failure"));
+    }
+   }
 }
 
 
