@@ -1,5 +1,11 @@
 <?php 
 
+include "connect.php" ; 
+
+sendGCM("hi" , "How Are You" , "users" , "" , "");
+
+echo ("Not Auth");
+
 // include './connect.php';
 // $table = "users";
 // // $name = filterRequest("namerequest");
@@ -11,8 +17,7 @@
 // );
 // $count = insertData($table , $data);
 
-include "connect.php" ; 
 
-getAllData("users","1=1");
+// getAllData("users","1=1");
 
 //sendEmail("atslook@gmail.com" ,"hi" , "from function send email"); 

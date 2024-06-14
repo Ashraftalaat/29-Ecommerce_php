@@ -6,11 +6,15 @@ $allData =array();
 
 $allData['status']='success';
 
+$settings = getAllData("settings","1 = 1",null, false);
+
+$allData['settings'] = $settings;
+
 $categories = getAllData("categories",null,null, false);
 // يعني خزنل البيانات اللي مخزنة في $categories علي صورة array وسميها categories
 $allData['categories'] = $categories;
 
-$items = getAllData("itemsview","items_discount > 0",null, false);
+$items = getAllData("itemstopsellingview","1 = 1 ORDER BY countitems DESC",null, false);
 
 $allData['items'] = $items;
 

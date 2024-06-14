@@ -1,19 +1,15 @@
 <?php
 
-include "../connect.php";
+include "./connect.php";
 
-$categoryId = filterRequest("id");
-$userid = filterRequest("usersid");
-
-// getAllData("itemsview" , " $categoryId = categories_id");
 
 $stmt = $con->prepare("SELECT itemsview.* , 1 AS favorite , (items_price - (items_price * items_discount /100)) AS itemspricediscount FROM itemsview 
-INNER JOIN favorite ON itemsview.items_id = favorite.favorite_itemsid AND favorite.favorite_usersid = $userid
-WHERE categories_id = $categoryId
+INNER JOIN favorite ON itemsview.items_id = favorite.favorite_itemsid 
+WHERE items_discount != 0
 UNION ALL
 SELECT * , 0 AS favorite , (items_price - (items_price * items_discount /100)) AS itemspricediscount FROM itemsview 
-WHERE categories_id = $categoryId AND items_id NOT IN (SELECT items_id FROM itemsview 
-INNER JOIN favorite ON itemsview.items_id = favorite.favorite_itemsid AND favorite.favorite_usersid = $userid)");
+WHERE items_discount != 0 AND items_id NOT IN (SELECT items_id FROM itemsview 
+INNER JOIN favorite ON itemsview.items_id = favorite.favorite_itemsid )");
 
 $stmt->execute();
 $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -24,4 +20,6 @@ if ($count > 0) {
 }else{
    echo json_encode(array("status" => "failure"));
 }
+
+
 

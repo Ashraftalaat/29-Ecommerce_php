@@ -24,7 +24,7 @@ function getAllData($table, $where = null, $values = null,$json =true)
     $stmt->execute($values);
     $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $count  = $stmt->rowCount();
-    //لاننا مش عايزين نطبع json 
+    //لاننا مش عايزين نطبع json مرتين
    if ($json == true) {
     if ($count > 0){
         echo json_encode(array("status" => "success", "data" => $data));
@@ -36,16 +36,16 @@ function getAllData($table, $where = null, $values = null,$json =true)
     // لو json مش true يعني في تغيير في القيمة
     if ($count > 0) {
         //اطبعلي الداتا return
-        return $data;
+        return array("status" => "success" , "data" => $data);
     }else {
         // اما "status" :"failure"
-        return json_encode(array("status" => "failure"));
+        return array("status" => "failure");
     }
    }
 }
 
 
-function getData($table, $where = null, $values = null)
+function getData($table, $where = null, $values = null,$json = true)
 {
     global $con;
     $data = array();
@@ -53,13 +53,16 @@ function getData($table, $where = null, $values = null)
     $stmt->execute($values);
     $data = $stmt->fetch(PDO::FETCH_ASSOC);
     $count  = $stmt->rowCount();
+    //لاننا مش عايزين نطبع json مرتين
+   if ($json == true) {
     if ($count > 0){
         echo json_encode(array("status" => "success", "data" => $data));
     } else {
         echo json_encode(array("status" => "failure"));
     }
+}else{
     return $count;
-}
+}}
 
 
 
@@ -202,5 +205,68 @@ function sendEmail($to , $title , $body){
     // تم حذفها لحدوث خطأ لانه
     //jsonDecode بتحول اللي علي هيئة map فقط
     //الموجودة في frontend
-   // echo "Success==================================+++++++++++++++++++++++++++++++++++++++++++++++++++++++" ; 
+   // echo "Success=======================++++++++++++++++++++++" ; 
     }
+
+
+
+
+
+
+// ارسال الاشعار من خلال topics
+    function sendGCM($title, $message, $topic, $pageid, $pagename)
+    {
+    
+    //هذاللينك خاص بارسال الاشعار من الفايربيز
+        $url = 'https://fcm.googleapis.com/fcm/send';
+    
+        $fields = array(
+            //'/topics/' يعني ارسال لكل المستخدمين او ارسال لشخص واحد واضافة usersid
+            "to" => '/topics/' . $topic,
+            'priority' => 'high',
+            'content_available' => true,
+    
+            'notification' => array(
+                "body" =>  $message,
+                "title" =>  $title,
+                "click_action" => "FLUTTER_NOTIFICATION_CLICK",
+                "sound" => "default"
+    
+            ),
+            'data' => array(
+                "pageid" => $pageid,
+                "pagename" => $pagename
+            )
+    
+        );
+    
+    
+        $fields = json_encode($fields);
+        $headers = array(
+            // اضافة key الربط مع firebase الموجودة  Cloud Messaging 
+            'Authorization: key=' . "AAAAcxmO584:APA91bHW__f98gDStGpfVvykXd-lpK7kXx9hiJLX0OIvfsXKqn5ZwXOSEvmYodS4yGtlz2_HoRehFNwjoiAycqIONoogByO4OKG465iEGn8axqbSkSlC4RgSg17doMqDOFiYHfSO_Tca",
+            'Content-Type: application/json'
+        );
+    
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
+    
+        $result = curl_exec($ch);
+        return $result;
+        curl_close($ch);
+    }
+
+    //تم عمل فينكشن واحدة لارسال الاشعار وحفظه
+    function inserNotify($title,$body,$userid,$topic,$pageid,$pagename){
+        global $con;
+        $stmt = $con->prepare("INSERT INTO `notification`(`notification_title`, `notification_body`, `notification_userid`) VALUES (?,?,?)");
+        $stmt->execute(array($title , $body, $userid));
+        sendGCM($title , $body ,$topic, $pageid , $pagename);
+        $count = $stmt->rowCount();
+    }
+    
+    
