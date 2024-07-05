@@ -2,8 +2,8 @@
 
 include "../../connect.php";
 
-$ordersid =filterRequest("ordersid");
-$usersid =filterRequest("usersid");
+$ordersid = filterRequest("ordersid");
+$usersid = filterRequest("usersid");
 
 $data =array(
     "orders_status"  => "1"

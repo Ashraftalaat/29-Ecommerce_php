@@ -12,11 +12,14 @@ $countrowinpage = 9;
 try {
    $con = new PDO($dsn, $user, $pass, $option);
    $con->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+   // السماحhttp request للوصول للباك اند بدون اي مشاكل
+   // حتي لايستطيع اي شخص الدخول Api واخذالمعلومات
    header("Access-Control-Allow-Origin: *");
    header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, Access-Control-Allow-Origin");
    header("Access-Control-Allow-Methods: POST, OPTIONS , GET");
    include "functions.php";
    if (!isset($notAuth)) {
+      //مش مفعلين header الحماية
       // checkAuthenticate();
    }
 } catch (PDOException $e) {

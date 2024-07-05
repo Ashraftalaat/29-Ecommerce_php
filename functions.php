@@ -4,8 +4,10 @@
 //  Copyright Reserved Wael Wael Abo Hamza (Course Ecommerce)
 // ==========================================================
 
-define("MB", 1048576);
+//date_default_timezone_set("Africa/Cairo");
 
+define("MB", 1048576);
+// define("MB", 1048576) يعني متغير ثابت مثل const فنضع define
 function filterRequest($requestname)
 {
   return  htmlspecialchars(strip_tags($_POST[$requestname]));
@@ -133,44 +135,62 @@ function deleteData($table, $where, $json = true)
     return $count;
 }
 
-function imageUpload($imageRequest)
+function imageUpload($dir , $imageRequest)
 {
+    //global $msgError لكي نعرفه في الصفحة اللي هنستخدم فيها الفينكشن
   global $msgError;
-  $imagename  = rand(1000, 10000) . $_FILES[$imageRequest]['name'];
-  $imagetmp   = $_FILES[$imageRequest]['tmp_name'];
-  $imagesize  = $_FILES[$imageRequest]['size'];
-  $allowExt   = array("jpg", "png", "gif", "mp3", "pdf");
-  $strToArray = explode(".", $imagename);
-  $ext        = end($strToArray);
-  $ext        = strtolower($ext);
+  //لو يوجد صورة
+  if (isset($_FILES[$imageRequest])) {
+    // حطينا بجوار الاسم رقم عشوائي حتي لاتتشابه الاسامي
+    $imagename  = rand(1000, 10000) . $_FILES[$imageRequest]['name'];
+    // المسار المؤقت اللي هنرفع منه الصورة
+    $imagetmp   = $_FILES[$imageRequest]['tmp_name'];
+    $imagesize  = $_FILES[$imageRequest]['size'];
+    // الامتدادات المسموح بها
+    $allowExt   = array("jpg", "png", "gif", "mp3", "pdf" ,"svg");
+    $strToArray = explode(".", $imagename);
+    $ext        = end($strToArray);
+    //لتحويل الامتداد الي احرف صغيرة
+    $ext        = strtolower($ext);
+  
+    if (!empty($imagename) && !in_array($ext, $allowExt)) {
+      $msgError = "EXT";
+    }
+    //يعني ليس اكبر من 2 ميجا حتي لاتظهر رسالة الخطاء
+    if ($imagesize > 10 * MB) {
+      $msgError = "size";
+    }
+    if (empty($msgError)) {
+        //لرفع الصورة في المسار اللي هنحدده
+      move_uploaded_file($imagetmp,  $dir . "/" . $imagename);
+      return $imagename;
+    } else {
+      return "fail";
+    }
+  }else {
+    return "empty";
+  }
 
-  if (!empty($imagename) && !in_array($ext, $allowExt)) {
-    $msgError = "EXT";
-  }
-  if ($imagesize > 2 * MB) {
-    $msgError = "size";
-  }
-  if (empty($msgError)) {
-    move_uploaded_file($imagetmp,  "../upload/" . $imagename);
-    return $imagename;
-  } else {
-    return "fail";
-  }
+
 }
 
 
 
 function deleteFile($dir, $imagename)
 {
+    //التحقق من وجود الملف قبل حذفهfile_exists
     if (file_exists($dir . "/" . $imagename)) {
+        //unlink بتقوم بحذف الملف
         unlink($dir . "/" . $imagename);
     }
 }
 
 function checkAuthenticate()
 {
+   //لحماية Api باليوسرنام والباسورد
+// هنضع الفينكشن في ملف connect.php
     if (isset($_SERVER['PHP_AUTH_USER'])  && isset($_SERVER['PHP_AUTH_PW'])) {
-        if ($_SERVER['PHP_AUTH_USER'] != "wael" ||  $_SERVER['PHP_AUTH_PW'] != "wael12345") {
+        if ($_SERVER['PHP_AUTH_USER'] != "ats" ||  $_SERVER['PHP_AUTH_PW'] != "ats2024") {
             header('WWW-Authenticate: Basic realm="My Realm"');
             header('HTTP/1.0 401 Unauthorized');
             echo 'Page Not Found';

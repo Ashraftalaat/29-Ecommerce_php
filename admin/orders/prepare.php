@@ -1,12 +1,11 @@
 <?php
 
 include "../../connect.php";
-
+//ترتيب الريكوست في الفرونت اند نفس الباك اند
 $ordersid =filterRequest("ordersid");
 $usersid =filterRequest("usersid");
-
-
 $type =filterRequest("orderstype");
+
 if ($type == "0") {
     $data =array(
         "orders_status"  => "2"

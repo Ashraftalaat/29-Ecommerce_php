@@ -1,7 +1,7 @@
 <?php 
 include "../../connect.php";
 
-getAllData("ordersview" , " 1 = 1 AND orders_status != 4");
+getAllData("ordersview" , " 1 = 1 AND orders_status = 0");
 
 // 0 ->  wait
 // 1 ->  prepare
